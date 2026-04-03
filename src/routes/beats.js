@@ -4,14 +4,12 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Converte um Drive ID em URL pública de imagem (capa)
 function coverUrl(id) {
   return `https://drive.google.com/thumbnail?sz=w800&id=${id}`;
 }
 
-// Converte um Drive ID em URL de preview de áudio (streaming)
-function audioUrl(id) {
-  return `https://drive.google.com/uc?id=${id}&export=download&confirm=t`;
+function audioUrl(id, apiUrl) {
+  return `${apiUrl}/api/audio/${id}`;
 }
 
 router.get("/", async (req, res) => {
@@ -20,7 +18,8 @@ router.get("/", async (req, res) => {
       orderBy: { id: "asc" },
     });
 
-    // Monta as URLs públicas a partir dos IDs do Drive
+    const apiUrl = process.env.API_URL || "http://localhost:8080";
+
     const response = beats.map((beat) => ({
       id:       beat.id,
       name:     beat.name,
@@ -28,7 +27,7 @@ router.get("/", async (req, res) => {
       price:    beat.price,
       tags:     beat.tags,
       coverUrl: coverUrl(beat.coverDriveId),
-      audioUrl: audioUrl(beat.audioPreviewDriveId),
+      audioUrl: audioUrl(beat.audioPreviewDriveId, apiUrl),
     }));
 
     res.json(response);

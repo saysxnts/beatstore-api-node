@@ -4,6 +4,7 @@ const cors = require("cors");
 
 const beatsRouter    = require("./routes/beats");
 const checkoutRouter = require("./routes/checkout");
+const audioRouter    = require("./routes/audio");
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.get("/health", (req, res) => res.json({ status: "ok" }));
 
 app.use("/api/beats",    beatsRouter);
 app.use("/api/checkout", checkoutRouter);
+app.use("/api/audio",    audioRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
