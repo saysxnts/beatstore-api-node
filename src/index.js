@@ -7,13 +7,12 @@ const checkoutRouter = require("./routes/checkout");
 
 const app = express();
 
-const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:3000").split(",");
-
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.some(o => origin.startsWith(o.trim()))) {
-      return callback(null, true);
-    }
+    if (!origin) return callback(null, true);
+    const allowed = (process.env.CORS_ORIGINS || "http://localhost:3000").split(",").map(o => o.trim());
+    const ok = allowed.some(o => origin === o) || origin.endsWith(".vercel.app") || origin === "http://localhost:3000";
+    if (ok) return callback(null, true);
     callback(new Error("Not allowed by CORS"));
   }
 }));
