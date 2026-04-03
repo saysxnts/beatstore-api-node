@@ -8,6 +8,9 @@ const audioRouter    = require("./routes/audio");
 
 const app = express();
 
+// Necessário para o Render (e outros proxies) passarem o IP real corretamente
+app.set("trust proxy", 1);
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
