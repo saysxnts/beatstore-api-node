@@ -166,12 +166,12 @@ router.get("/success", async (req, res) => {
       return res.redirect(`${process.env.FRONTEND_URL}/checkout/error`);
     }
 
-    const description = capture.body.purchase_units?.[0]?.description || "";
-    const orderId = parseInt(description.replace("ORDER:", ""), 10);
-    if (!orderId) return res.redirect(`${process.env.FRONTEND_URL}/checkout/error`);
-
-    const order = await prisma.order.findUnique({ where: { id: orderId } });
-    if (!order) return res.redirect(`${process.env.FRONTEND_URL}/checkout/error`);
+    // Busca o pedido pelo PayPal order ID (token)
+    const order = await prisma.order.findFirst({ where: { paypalPaymentId: token } });
+    if (!order) {
+      console.error("Pedido não encontrado para token:", token);
+      return res.redirect(`${process.env.FRONTEND_URL}/checkout/error`);
+    }
     if (order.status === "PAID")
       return res.redirect(`${process.env.FRONTEND_URL}/checkout/success`);
 
@@ -183,13 +183,13 @@ router.get("/success", async (req, res) => {
     const licenseUrl = driveDownloadUrl(process.env.LICENSE_DRIVE_ID);
 
     await prisma.order.update({
-      where: { id: orderId },
+      where: { id: order.id },
       data: { status: "PAID", buyerEmail },
     });
 
     await sendBeats(buyerEmail, wavLinks, licenseUrl);
 
-    console.log(`Pedido ${orderId} pago para ${buyerEmail}`);
+    console.log(`Pedido ${order.id} pago para ${buyerEmail}`);
     res.redirect(`${process.env.FRONTEND_URL}/checkout/success`);
 
   } catch (err) {
