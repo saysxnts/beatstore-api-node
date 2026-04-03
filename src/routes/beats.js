@@ -11,7 +11,7 @@ function coverUrl(id) {
 
 // Converte um Drive ID em URL de preview de áudio (streaming)
 function audioUrl(id) {
-  return `https://drive.google.com/uc?export=download&id=${id}`;
+  return `https://drive.google.com/uc?id=${id}&export=download&confirm=t`;
 }
 
 router.get("/", async (req, res) => {
