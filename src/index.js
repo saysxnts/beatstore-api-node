@@ -7,7 +7,17 @@ const checkoutRouter = require("./routes/checkout");
 
 const app = express();
 
-app.use(cors({ origin: process.env.CORS_ORIGINS || "http://localhost:3000" }));
+const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:3000").split(",");
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.some(o => origin.startsWith(o.trim()))) {
+      return callback(null, true);
+    }
+    callback(new Error("Not allowed by CORS"));
+  }
+}));
+
 app.use(express.json());
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
